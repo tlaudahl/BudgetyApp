@@ -16,7 +16,7 @@ let budgetController = (function () {
     data.allItems[type].forEach((item) => {
       sum += item.value;
     });
-    data.total[type] = sum;
+    data.totals[type] = sum;
   };
 
   const data = {
@@ -55,7 +55,7 @@ let budgetController = (function () {
       calculateTotal("exp");
       calculateTotal("inc");
       data.budget = data.totals.inc - data.totals.exp;
-      if (data.total.inc > 0) {
+      if (data.totals.inc > 0) {
         data.percentage = Math.round((data.totals.exp / data.totals.inc) * 100);
       } else {
         data.percentage = -1;
@@ -80,6 +80,10 @@ let UIController = (function () {
     inputBtn: ".add__btn",
     incomeContainer: ".income__list",
     expensesContainer: ".expenses__list",
+    budgetLabel: ".budget__value",
+    incomeLabel: ".budget__income--value",
+    expensesLabel: ".budget__expenses--value",
+    percentageLabel: ".budget__expenses--percentage",
   };
   return {
     getInput: function () {
@@ -124,6 +128,18 @@ let UIController = (function () {
 
       fieldsArr[0].focus();
     },
+    displayBudget: function (obj) {
+      document.querySelector(DOMstrings.budgetLabel).textContent = obj.budget;
+      document.querySelector(DOMstrings.incomeLabel).textContent = obj.totalInc;
+      document.querySelector(DOMstrings.expensesLabel).textContent =
+        obj.totalExp;
+      if (obj.percentage > 0) {
+        document.querySelector(DOMstrings.percentageLabel).textContent =
+          obj.percentage + "%";
+      } else {
+        document.querySelector(DOMstrings.percentageLabel).textContent = "---";
+      }
+    },
     getDOMstrings: function () {
       return DOMstrings;
     },
@@ -148,6 +164,7 @@ let controller = (function (budgetCtrl, UICtrl) {
     // 2. Return the budget
     let budget = budgetCtrl.getBudget();
     // 3. Display the budget on the UI
+    UICtrl.displayBudget(budget);
   };
 
   let ctrlAddItem = () => {
@@ -166,14 +183,13 @@ let controller = (function (budgetCtrl, UICtrl) {
       // 4. Clear the input fields
       UICtrl.clearFields();
     }
-    // 2. Add the item to the budget controller
     // 5. Calculate the budget
-
-    // 6. Display Budget on the UI
+    updateBudget();
   };
 
   return {
     init: function () {
+      UICtrl.displayBudget(budgetCtrl.getBudget());
       setupEventListeners();
     },
   };
